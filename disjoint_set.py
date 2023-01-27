@@ -1,4 +1,6 @@
 import argparse
+from typing import List
+
 
 ## ------------- AJUSTES PARA UNSAR COMMAND LINE ARGUMENTS  ------------ ##
 parser = argparse.ArgumentParser()
@@ -11,11 +13,13 @@ CLI_args = parser.parse_args()
 
 class DisjointSet:
 
-    def __init__(self, n):
+    def __init__(self, n:int):
+        """ Creates an instance of DisjointSet whit n starting sets """
         self.parents = [i for i in range(n)]
         self.size = [1 for i in range(n)]
 
-    def find(self, i):
+    def find(self, i:int)->int:
+        """ finds the root of the set where belongs given element """
         root = i
         while (self.parents[root] != root):
             root = self.parents[root]
@@ -24,15 +28,20 @@ class DisjointSet:
 
         return root
 
-    def compress_path(self, i, root):        
+    def compress_path(self, i:int, root:int)->None:   
+        """ makes the elements that are in the path from the given element
+            to the set's root point straight  to the root 
+        """     
         while(i != root):
             self.parents[i], i = root, self.parents[i]  
     
-    def same_set(self, i, j):
+    def same_set(self, i:int, j:int)->bool:
+        """ if the two given elements are part of the same set returns True, otherwise False """
         return self.find(i) == self.find(j)
 
 
-    def unify(self, i, j):      
+    def unify(self, i:int, j:int)->None: 
+        """ unies two sets so that they become one set """     
         if(self.same_set(i, j)):        
             return
             
@@ -42,7 +51,8 @@ class DisjointSet:
         if(self.size[root1] > self.size[root2]):         
             self.size[root1] += self.size[root2]
             self.size[root2] = 0
-            self.parents[root2] = root1      
+            self.parents[root2] = root1 
+            #this step following is not mandatory, but it helps with futere find() operaions so that they takes less time     
             self.compress_path(j, root1)
         else:        
             self.size[root2] += self.size[root1]        
@@ -51,8 +61,8 @@ class DisjointSet:
             self.compress_path(i, root2)                
 
 
-    def unify_range(self, i, j):
-
+    def unify_range(self, i:int, j:int)->None:
+        """ unies all the sets that are within the given range """
         if(self.same_set(i, j)):        
             return
 
@@ -61,7 +71,15 @@ class DisjointSet:
 
 
 
-def deparments(N, Q, OPS):
+def deparments(N:int, Q:int, OPS:List[int])->List[bool]:
+    """ N: number of deparments in the company
+        Q: total number of queries
+        OPS: list containing the type of querie and the two elements on which the action will be executed
+
+        Creates a DisjointSet object whit N starting elements, and then ejecutes the actions especify
+        by each querie with the two elements/sets given in the querie.
+        The function return a list with the results of all the queries which query type is equal to 3 
+     """
     if(type(OPS)!=list):
         raise TypeError(f'OPS type {type(OPS)} is NOT a list')
     if(Q != len(OPS)):
